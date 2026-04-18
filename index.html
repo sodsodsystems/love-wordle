@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Love Wordle 💖 | A Sweet Word Game for You</title>
+    <meta name="description" content="Play Love Wordle, a sweet and romantic twist on the classic word game. 5 letters, 6 guesses, and infinite love!">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Pacifico&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --pink-50: #fff5f8;
+            --pink-100: #ffe4ef;
+            --pink-200: #ffc9e0;
+            --pink-300: #ffa1ca;
+            --pink-400: #ff66a4;
+            --pink-500: #ff3381;
+            --pink-600: #e61a6b;
+            --rose: #ff2d75;
+            --cream: #fff9fb;
+            --white: #ffffff;
+            --gray-100: #f7f2f4;
+            --gray-300: #d1c1c7;
+            --gray-500: #8a767e;
+            --green: #4ade80;
+            --yellow: #facc15;
+            --tile-size: clamp(48px, 12vw, 62px);
+            --gap: clamp(4px, 1.5vw, 8px);
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --shadow-premium: 0 10px 40px rgba(255, 45, 117, 0.15);
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Base Reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fff0f6 0%, #ffe3ec 50%, #fff0f6 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            color: var(--gray-500);
+            position: relative;
+        }
+
+        /* Ambient Hearts */
+        .ambient-hearts {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .ambient-hearts span {
+            position: absolute;
+            bottom: -50px;
+            opacity: 0;
+            animation: floatUp var(--dur) var(--delay) infinite ease-in;
+            left: var(--x);
+            font-size: var(--size);
+            filter: blur(var(--blur));
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.4; }
+            80% { opacity: 0.2; }
+            100% { transform: translateY(-110vh) scale(1.2) rotate(360deg); opacity: 0; }
+        }
+
+        /* Header */
+        header {
+            width: 100%;
+            max-width: 500px;
+            padding: 40px 20px 20px;
+            text-align: center;
+            z-index: 10;
+        }
+        .logo {
+            font-family: 'Pacifico', cursive;
+            font-size: clamp(32px, 8vw, 48px);
+            background: linear-gradient(135deg, var(--pink-500), var(--rose));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 4px 12px rgba(255, 45, 117, 0.2));
+        }
+        .tagline {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--pink-400);
+            opacity: 0.8;
+        }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        .music-btn {
+            background: var(--glass);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--glass-border);
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-family: inherit;
+            font-weight: 700;
+            color: var(--pink-600);
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 45, 117, 0.1);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .music-btn:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 45, 117, 0.15);
+        }
+        .music-btn.playing {
+            background: var(--pink-100);
+            border-color: var(--pink-200);
+        }
+
+        /* Main Game Area */
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 500px;
+            padding: 0 20px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            z-index: 10;
+        }
+
+        /* Grid */
+        #grid {
+            display: grid;
+            grid-template-rows: repeat(6, 1fr);
+            gap: var(--gap);
+        }
+        .row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: var(--gap);
+        }
+
+        /* Tiles */
+        .tile {
+            width: var(--tile-size);
+            height: var(--tile-size);
+            perspective: 1000px;
+        }
+        .tile-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .tile.flipped .tile-inner {
+            transform: rotateX(180deg);
+        }
+        .tile-front, .tile-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(20px, 5vw, 28px);
+            font-weight: 900;
+            border-radius: var(--radius-md);
+            text-transform: uppercase;
+        }
+        .tile-front {
+            background: var(--white);
+            border: 2px solid var(--pink-100);
+            color: var(--pink-600);
+            transition: all 0.1s;
+        }
+        .tile-front.filled {
+            border-color: var(--pink-300);
+            transform: scale(1.05);
+            animation: pop 0.1s ease;
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1.05); }
+        }
+        .tile-back {
+            transform: rotateX(180deg);
+            color: white;
+        }
+        .tile-back.correct { background: linear-gradient(135deg, #10b981, #059669); }
+        .tile-back.present { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .tile-back.absent { background: linear-gradient(135deg, #9ca3af, #4b5563); }
+
+        /* Keyboard */
+        #keyboard {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: auto;
+        }
+        .kb-row {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            width: 100%;
+        }
+        .key {
+            height: clamp(52px, 8vh, 58px);
+            min-width: clamp(30px, 8.5vw, 42px);
+            background: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: clamp(12px, 3vw, 15px);
+            color: var(--gray-500);
+            cursor: pointer;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 3px 0 var(--gray-100);
+        }
+        .key:hover {
+            background: var(--pink-50);
+            color: var(--pink-500);
+            transform: translateY(-2px);
+        }
+        .key.wide {
+            min-width: clamp(50px, 14vw, 65px);
+            background: var(--pink-50);
+            color: var(--pink-600);
+        }
+        .key.correct { background: #10b981; color: white; box-shadow: 0 3px 0 #047857; }
+        .key.present { background: #f59e0b; color: white; box-shadow: 0 3px 0 #b45309; }
+        .key.absent { background: #4b5563; color: white; box-shadow: 0 3px 0 #1f2937; }
+
+        /* Modal */
+        #modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #modal.show {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            transform: scale(0.9);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #modal.show .modal-card {
+            transform: scale(1);
+        }
+        .modal-emoji { font-size: 64px; margin-bottom: 20px; }
+        .modal-title { font-family: 'Pacifico', cursive; font-size: 32px; color: var(--pink-500); margin-bottom: 12px; }
+        .modal-message { font-size: 16px; margin-bottom: 24px; line-height: 1.6; }
+        .modal-btn {
+            background: linear-gradient(135deg, var(--pink-500), var(--rose));
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(255, 45, 117, 0.3);
+            transition: all 0.3s;
+        }
+        .modal-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(255, 45, 117, 0.4);
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--white);
+            color: var(--pink-600);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 800;
+            box-shadow: 0 10px 30px rgba(255, 45, 117, 0.15);
+            z-index: 1100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        footer {
+            padding: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--pink-300);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Responsive Tweaks */
+        @media (max-width: 400px) {
+            :root {
+                --tile-size: 44px;
+                --gap: 4px;
+            }
+            main { padding: 0 10px 20px; }
+            .key { min-width: 28px; height: 48px; }
+        }
+
+        @media (max-height: 700px) {
+            header { padding-top: 20px; }
+            main { gap: 15px; }
+            .logo { font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-hearts" id="ambientHearts"></div>
+
+    <div class="controls">
+        <button class="music-btn" id="musicBtn">
+            <span id="musicIcon">🎵</span>
+            <span id="musicLabel">Music</span>
+        </button>
+    </div>
+
+    <header>
+        <h1 class="logo">Love Wordle</h1>
+        <p class="tagline">5 letters • 6 guesses • 1 heart</p>
+    </header>
+
+    <main>
+        <div id="grid"></div>
+        <div id="keyboard"></div>
+    </main>
+
+    <footer>Made with 💖 for you</footer>
+
+    <div id="toast"></div>
+
+    <div id="modal">
+        <div class="modal-card">
+            <div id="modalEmoji" class="modal-emoji">💖</div>
+            <h2 id="modalTitle" class="modal-title">You Win!</h2>
+            <p id="modalMessage" class="modal-message"></p>
+            <button class="modal-btn" id="playAgainBtn">Play Again, Love?</button>
+        </div>
+    </div>
+
+    <script>
+        const WORDS = ['lover', 'heart', 'adore', 'crush', 'honey', 'sweet', 'cupid', 'kissy', 'roses', 'tulip', 'bride', 'groom', 'dates', 'faith', 'dream', 'grace', 'peace'];
+        const WIN_MESSAGES = [
+            "You found the word… just like I found you 💖",
+            "Every guess led to you, my favorite answer 💕",
+            "I love you more than all the correct guesses combined 🥺",
+            "You're as perfect as that final guess, my love 🌸",
+            "That word was always meant to be yours 💫"
+        ];
+        const LOSE_MESSAGES = [
+            "It's okay, love… you'll always be my favorite guess 💗",
+            "Don't worry, my heart still belongs to you 🌷",
+            "Even without the answer, you're everything to me 🥀"
+        ];
+
+        let targetWord = '';
+        let currentRow = 0;
+        let currentCol = 0;
+        let currentGuess = [];
+        let gameOver = false;
+        let gridTiles = [];
+        let keyMap = {};
+
+        function init() {
+            targetWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+            currentRow = 0;
+            currentCol = 0;
+            currentGuess = [];
+            gameOver = false;
+            gridTiles = [];
+            keyMap = {};
+
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            for (let r = 0; r < 6; r++) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'row';
+                gridTiles[r] = [];
+                for (let c = 0; c < 5; c++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.innerHTML = `
+                        <div class="tile-inner">
+                            <div class="tile-front"></div>
+                            <div class="tile-back"></div>
+                        </div>`;
+                    rowDiv.appendChild(tile);
+                    gridTiles[r][c] = tile;
+                }
+                grid.appendChild(rowDiv);
+            }
+
+            buildKeyboard();
+            hideModal();
+        }
+
+        function buildKeyboard() {
+            const kbRows = [
+                ['q','w','e','r','t','y','u','i','o','p'],
+                ['a','s','d','f','g','h','j','k','l'],
+                ['Enter','z','x','c','v','b','n','m','⌫']
+            ];
+            const kb = document.getElementById('keyboard');
+            kb.innerHTML = '';
+            kbRows.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'kb-row';
+                row.forEach(key => {
+                    const btn = document.createElement('button');
+                    btn.className = 'key' + (key.length > 1 ? ' wide' : '');
+                    btn.textContent = key;
+                    btn.addEventListener('click', () => handleInput(key));
+                    rowDiv.appendChild(btn);
+                    if (key.length === 1) keyMap[key] = btn;
+                });
+                kb.appendChild(rowDiv);
+            });
+        }
+
+        function handleInput(key) {
+            if (gameOver) return;
+            if (key === '⌫' || key === 'Backspace') {
+                if (currentCol > 0) {
+                    currentCol--;
+                    currentGuess.pop();
+                    const tile = gridTiles[currentRow][currentCol].querySelector('.tile-front');
+                    tile.textContent = '';
+                    tile.classList.remove('filled');
+                }
+            } else if (key === 'Enter') {
+                if (currentCol === 5) {
+                    submitGuess();
+                } else {
+                    showToast('Too short! 💌');
+                }
+            } else if (/^[a-z]$/i.test(key) && currentCol < 5) {
+                const char = key.toLowerCase();
+                currentGuess.push(char);
+                const tile = gridTiles[currentRow][currentCol].querySelector('.tile-front');
+                tile.textContent = char;
+                tile.classList.add('filled');
+                currentCol++;
+            }
+        }
+
+        function submitGuess() {
+            const guess = currentGuess.join('');
+            const result = getResult(guess, targetWord);
+            
+            result.forEach((status, i) => {
+                setTimeout(() => {
+                    const tile = gridTiles[currentRow][i];
+                    const back = tile.querySelector('.tile-back');
+                    back.textContent = guess[i];
+                    back.className = `tile-back ${status}`;
+                    tile.classList.add('flipped');
+
+                    // Update keyboard
+                    const keyBtn = keyMap[guess[i]];
+                    if (keyBtn) {
+                        if (status === 'correct') {
+                            keyBtn.className = 'key correct';
+                        } else if (status === 'present' && !keyBtn.classList.contains('correct')) {
+                            keyBtn.className = 'key present';
+                        } else if (status === 'absent' && !keyBtn.classList.contains('correct') && !keyBtn.classList.contains('present')) {
+                            keyBtn.className = 'key absent';
+                        }
+                    }
+
+                    if (i === 4) {
+                        setTimeout(() => checkGameState(guess === targetWord), 500);
+                    }
+                }, i * 150);
+            });
+        }
+
+        function getResult(guess, target) {
+            const res = Array(5).fill('absent');
+            const targetChars = target.split('');
+            const guessChars = guess.split('');
+
+            // First pass: Correct position
+            guessChars.forEach((char, i) => {
+                if (char === targetChars[i]) {
+                    res[i] = 'correct';
+                    targetChars[i] = null;
+                    guessChars[i] = null;
+                }
+            });
+
+            // Second pass: Present but wrong position
+            guessChars.forEach((char, i) => {
+                if (char && targetChars.includes(char)) {
+                    res[i] = 'present';
+                    targetChars[targetChars.indexOf(char)] = null;
+                }
+            });
+
+            return res;
+        }
+
+        function checkGameState(isWin) {
+            if (isWin) {
+                gameOver = true;
+                showModal(true);
+            } else if (currentRow === 5) {
+                gameOver = true;
+                showModal(false);
+            } else {
+                currentRow++;
+                currentCol = 0;
+                currentGuess = [];
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function showModal(win) {
+            const modal = document.getElementById('modal');
+            const emoji = document.getElementById('modalEmoji');
+            const title = document.getElementById('modalTitle');
+            const msg = document.getElementById('modalMessage');
+
+            emoji.textContent = win ? '💖' : '💔';
+            title.textContent = win ? 'You Found It!' : 'Oh No, Love...';
+            msg.textContent = win ? 
+                WIN_MESSAGES[Math.floor(Math.random() * WIN_MESSAGES.length)] : 
+                `${LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)]} The word was ${targetWord.toUpperCase()}.`;
+
+            modal.classList.add('show');
+        }
+
+        function hideModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        document.getElementById('playAgainBtn').onclick = init;
+
+        document.addEventListener('keydown', (e) => handleInput(e.key));
+
+        // Ambient Hearts Effect
+        function createAmbientHearts() {
+            const container = document.getElementById('ambientHearts');
+            const emojis = ['💖', '💕', '💗', '💓', '💕', '✨'];
+            for (let i = 0; i < 15; i++) {
+                const span = document.createElement('span');
+                span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                span.style.setProperty('--x', Math.random() * 100 + '%');
+                span.style.setProperty('--delay', Math.random() * 10 + 's');
+                span.style.setProperty('--dur', Math.random() * 5 + 10 + 's');
+                span.style.setProperty('--size', Math.random() * 15 + 15 + 'px');
+                span.style.setProperty('--blur', Math.random() * 2 + 'px');
+                container.appendChild(span);
+            }
+        }
+
+        // Music Logic
+        let audioCtx = null;
+        let musicPlaying = false;
+
+        function createMusic(ctx) {
+            const masterGain = ctx.createGain();
+            masterGain.gain.setValueAtTime(0, ctx.currentTime);
+            masterGain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 2);
+            masterGain.connect(ctx.destination);
+
+            const chords = [
+                [261.63, 329.63, 392.00, 493.88], // Cmaj7
+                [220.00, 261.63, 329.63, 440.00], // Am7
+                [174.61, 220.00, 261.63, 349.23], // Fmaj7
+                [196.00, 246.94, 293.66, 392.00]  // G
+            ];
+
+            let bar = 0;
+            function playStep() {
+                const chord = chords[bar % chords.length];
+                const now = ctx.currentTime;
+                
+                chord.forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const env = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.5);
+                    env.gain.setValueAtTime(0, now + i * 0.5);
+                    env.gain.linearRampToValueAtTime(0.1, now + i * 0.5 + 0.1);
+                    env.gain.exponentialRampToValueAtTime(0.001, now + i * 0.5 + 2);
+                    osc.connect(env);
+                    env.connect(masterGain);
+                    osc.start(now + i * 0.5);
+                    osc.stop(now + i * 0.5 + 2.5);
+                });
+                bar++;
+                setTimeout(playStep, 4000);
+            }
+            playStep();
+        }
+
+        document.getElementById('musicBtn').onclick = () => {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                createMusic(audioCtx);
+                musicPlaying = true;
+            } else if (musicPlaying) {
+                audioCtx.suspend();
+                musicPlaying = false;
+            } else {
+                audioCtx.resume();
+                musicPlaying = true;
+            }
+            document.getElementById('musicBtn').classList.toggle('playing', musicPlaying);
+            document.getElementById('musicLabel').textContent = musicPlaying ? 'Pause' : 'Music';
+        };
+
+        init();
+        createAmbientHearts();
+    </script>
+</body>
+</html>
