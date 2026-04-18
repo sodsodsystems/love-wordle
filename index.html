@@ -478,13 +478,15 @@
 
     <script>
         // ── WORDS & MESSAGES ─────────────────────────────────────────
-        const WORDS = ['lover', 'heart', 'adore', 'crush', 'honey', 'sweet', 'cupid', 'kissy', 'roses', 'tulip', 'bride', 'groom', 'dates', 'faith', 'dream', 'grace', 'peace'];
+        const WORDS = ['lover', 'heart', 'adore', 'crush', 'honey', 'sweet', 'cupid', 'amour', 'bliss', 'charm', 'flame', 'bloom', 'dream', 'angel', 'cares', 'feels', 'trust', 'smile', 'laugh', 'peace', 'unity', 'dates', 'gifts', 'teddy', 'roses', 'shine', 'magic', 'spark', 'gleam', 'stars', 'light', 'asawa'];
         const WIN_MESSAGES = [
             "You found the word… just like I found you 💖",
             "Every guess led to you, my favorite answer 💕",
             "I love you more than all the correct guesses combined 🥺",
             "You're as perfect as that final guess, my love 🌸",
-            "That word was always meant to be yours 💫"
+            "That word was always meant to be yours 💫",
+            "A lifetime of smiles, starting with this word 🌹",
+            "You've got the key to my heart... and this word! ✨"
         ];
         const LOSE_MESSAGES = [
             "It's okay, love… you'll always be my favorite guess 💗",
@@ -792,9 +794,16 @@
 
             iconDiv.innerHTML = win ? '<i data-lucide="party-popper"></i>' : '<i data-lucide="frown"></i>';
             title.textContent = win ? 'You Found It!' : 'Oh No, Love...';
-            msg.textContent = win ? 
-                WIN_MESSAGES[Math.floor(Math.random() * WIN_MESSAGES.length)] : 
-                `${LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)]} Today's word was ${targetWord.toUpperCase()}.`;
+            
+            if (win) {
+                if (targetWord === 'asawa') {
+                    msg.textContent = "Future asawa unlocked 💍💖";
+                } else {
+                    msg.textContent = WIN_MESSAGES[Math.floor(Math.random() * WIN_MESSAGES.length)];
+                }
+            } else {
+                msg.textContent = `${LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)]} Today's word was ${targetWord.toUpperCase()}.`;
+            }
 
             document.getElementById('statStreak').textContent = stats.streak;
             document.getElementById('statMax').textContent = stats.maxStreak;
