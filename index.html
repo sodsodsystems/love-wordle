@@ -479,15 +479,40 @@
     <script>
         // ── WORDS & MESSAGES ─────────────────────────────────────────
         const WORDS = ['lover', 'heart', 'adore', 'crush', 'honey', 'sweet', 'cupid', 'amour', 'bliss', 'charm', 'flame', 'bloom', 'dream', 'angel', 'cares', 'feels', 'trust', 'smile', 'laugh', 'peace', 'unity', 'dates', 'gifts', 'teddy', 'roses', 'shine', 'magic', 'spark', 'gleam', 'stars', 'light', 'asawa'];
-        const WIN_MESSAGES = [
-            "You found the word… just like I found you 💖",
-            "Every guess led to you, my favorite answer 💕",
-            "I love you more than all the correct guesses combined 🥺",
-            "You're as perfect as that final guess, my love 🌸",
-            "That word was always meant to be yours 💫",
-            "A lifetime of smiles, starting with this word 🌹",
-            "You've got the key to my heart... and this word! ✨"
-        ];
+        const UNIQUE_MESSAGES = {
+            'lover': "You're not just my winner, you're my favorite lover. 💖",
+            'heart': "You've had my heart since the first time we met. 💓",
+            'adore': "I adore every single thing about you. 💕",
+            'crush': "You'll always be my biggest crush. 😍",
+            'honey': "To my sweetest honey, you're my everything. 🍯",
+            'sweet': "Life is so much sweeter with you by my side. 🍭",
+            'cupid': "Cupid definitely knew what he was doing with us. 💘",
+            'amour': "Mon amour, you are the light of my life. 🌹",
+            'bliss': "Being with you is absolute bliss. ✨",
+            'charm': "You've completely charmed my heart away. 🪄",
+            'flame': "You're the flame that keeps my heart warm. 🔥",
+            'bloom': "Our love continues to bloom more beautifully every day. 🌸",
+            'dream': "You're the dream I never want to wake up from. 🌙",
+            'angel': "You truly are my guardian angel. 😇",
+            'cares': "Thank you for all the love and care you show me. 🥰",
+            'feels': "You give me all the best feels in the world. 💓",
+            'trust': "I trust you with my whole heart, forever. 🤝",
+            'smile': "Your smile is my favorite thing in the universe. 😊",
+            'laugh': "Your laugh is the best music I've ever heard. 😂",
+            'peace': "You are my peace in this crazy world. 🕊️",
+            'unity': "Together in unity, we can conquer anything. ♾️",
+            'dates': "I cherish every date we spend together. 🥂",
+            'gifts': "The best gift I've ever received is your love. 🎁",
+            'teddy': "You're my favorite person to cuddle with, my teddy. 🧸",
+            'roses': "Like a thousand roses, my love for you keeps growing. 🌹",
+            'shine': "You shine brighter than any star in the sky. ✨",
+            'magic': "Our love is pure, undeniable magic. 🪄",
+            'spark': "The spark between us only gets stronger. ⚡",
+            'gleam': "I love the gleam in your eyes when you look at me. ✨",
+            'stars': "Even the stars aren't as beautiful as you are. 🌠",
+            'light': "You are the light that guides me home. 💡",
+            'asawa': "Future asawa unlocked 💍💖"
+        };
         const LOSE_MESSAGES = [
             "It's okay, love… you'll always be my favorite guess 💗",
             "Don't worry, my heart still belongs to you 🌷",
@@ -796,11 +821,7 @@
             title.textContent = win ? 'You Found It!' : 'Oh No, Love...';
             
             if (win) {
-                if (targetWord === 'asawa') {
-                    msg.textContent = "Future asawa unlocked 💍💖";
-                } else {
-                    msg.textContent = WIN_MESSAGES[Math.floor(Math.random() * WIN_MESSAGES.length)];
-                }
+                msg.textContent = UNIQUE_MESSAGES[targetWord] || "You found the word… just like I found you 💖";
             } else {
                 msg.textContent = `${LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)]} Today's word was ${targetWord.toUpperCase()}.`;
             }
