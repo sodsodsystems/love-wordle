@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Pacifico&display=swap" rel="stylesheet">
     
+    <!-- Icons (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
         :root {
             --pink-50: #fff5f8;
@@ -97,6 +100,15 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
             filter: drop-shadow(0 4px 12px rgba(255, 45, 117, 0.2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .logo i {
+            -webkit-text-fill-color: initial;
+            color: var(--rose);
+            font-size: 0.8em;
         }
         .tagline {
             font-size: 11px;
@@ -105,6 +117,10 @@
             letter-spacing: 3px;
             color: var(--pink-400);
             opacity: 0.8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         /* Controls */
@@ -113,8 +129,10 @@
             top: 20px;
             right: 20px;
             z-index: 100;
+            display: flex;
+            gap: 10px;
         }
-        .music-btn {
+        .music-btn, .streak-badge {
             background: var(--glass);
             backdrop-filter: blur(8px);
             border: 1px solid var(--glass-border);
@@ -123,12 +141,14 @@
             font-family: inherit;
             font-weight: 700;
             color: var(--pink-600);
-            cursor: pointer;
             box-shadow: 0 4px 15px rgba(255, 45, 117, 0.1);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+        .music-btn {
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .music-btn:hover {
             transform: scale(1.05) translateY(-2px);
@@ -293,13 +313,16 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
             transform: scale(0.9);
             transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
         }
         #modal.show .modal-card {
             transform: scale(1);
         }
-        .modal-emoji { font-size: 64px; margin-bottom: 20px; }
+        .modal-icon { color: var(--rose); margin-bottom: 20px; display: flex; justify-content: center; }
+        .modal-icon i { width: 64px; height: 64px; }
         .modal-title { font-family: 'Pacifico', cursive; font-size: 32px; color: var(--pink-500); margin-bottom: 12px; }
         .modal-message { font-size: 16px; margin-bottom: 24px; line-height: 1.6; }
+        .modal-countdown { font-size: 14px; font-weight: 800; color: var(--pink-400); margin-top: 20px; text-transform: uppercase; letter-spacing: 1px; }
         .modal-btn {
             background: linear-gradient(135deg, var(--pink-500), var(--rose));
             color: white;
@@ -318,6 +341,21 @@
             box-shadow: 0 15px 30px rgba(255, 45, 117, 0.4);
         }
 
+        /* Stats in Modal */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-item {
+            background: var(--pink-50);
+            padding: 15px;
+            border-radius: var(--radius-md);
+        }
+        .stat-value { font-size: 24px; font-weight: 900; color: var(--rose); }
+        .stat-label { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--gray-500); }
+
         /* Toast */
         #toast {
             position: fixed;
@@ -334,6 +372,9 @@
             opacity: 0;
             pointer-events: none;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         #toast.show {
             opacity: 1;
@@ -347,6 +388,18 @@
             color: var(--pink-300);
             letter-spacing: 1px;
             text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* YouTube Container (Hidden) */
+        #youtube-player {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
         }
 
         /* Responsive Tweaks */
@@ -357,6 +410,8 @@
             }
             main { padding: 0 10px 20px; }
             .key { min-width: 28px; height: 48px; }
+            .controls { top: 10px; right: 10px; }
+            .logo { font-size: 28px; }
         }
 
         @media (max-height: 700px) {
@@ -371,15 +426,19 @@
     <div class="ambient-hearts" id="ambientHearts"></div>
 
     <div class="controls">
+        <div class="streak-badge" id="streakBadge">
+            <i data-lucide="flame"></i>
+            <span id="streakValue">0</span>
+        </div>
         <button class="music-btn" id="musicBtn">
-            <span id="musicIcon">🎵</span>
+            <i data-lucide="music" id="musicIcon"></i>
             <span id="musicLabel">Music</span>
         </button>
     </div>
 
     <header>
-        <h1 class="logo">Love Wordle</h1>
-        <p class="tagline">5 letters • 6 guesses • 1 heart</p>
+        <h1 class="logo">Love Wordle <i data-lucide="heart"></i></h1>
+        <p class="tagline">5 letters <i data-lucide="star"></i> 6 guesses <i data-lucide="star"></i> 1 heart</p>
     </header>
 
     <main>
@@ -387,20 +446,38 @@
         <div id="keyboard"></div>
     </main>
 
-    <footer>Made with 💖 for you</footer>
+    <footer>Made with <i data-lucide="heart"></i> for you</footer>
 
     <div id="toast"></div>
 
     <div id="modal">
         <div class="modal-card">
-            <div id="modalEmoji" class="modal-emoji">💖</div>
+            <div class="modal-icon" id="modalIcon">
+                <i data-lucide="heart"></i>
+            </div>
             <h2 id="modalTitle" class="modal-title">You Win!</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="statStreak">0</div>
+                    <div class="stat-label">Current Streak</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statMax">0</div>
+                    <div class="stat-label">Max Streak</div>
+                </div>
+            </div>
             <p id="modalMessage" class="modal-message"></p>
-            <button class="modal-btn" id="playAgainBtn">Play Again, Love?</button>
+            <button class="modal-btn" id="playAgainBtn" style="display:none">Play Again, Love?</button>
+            <div class="modal-countdown" id="countdownContainer">
+                Next Love Wordle in: <span id="timeRemaining">--:--:--</span>
+            </div>
         </div>
     </div>
 
+    <div id="youtube-player"></div>
+
     <script>
+        // ── WORDS & MESSAGES ─────────────────────────────────────────
         const WORDS = ['lover', 'heart', 'adore', 'crush', 'honey', 'sweet', 'cupid', 'kissy', 'roses', 'tulip', 'bride', 'groom', 'dates', 'faith', 'dream', 'grace', 'peace'];
         const WIN_MESSAGES = [
             "You found the word… just like I found you 💖",
@@ -415,6 +492,7 @@
             "Even without the answer, you're everything to me 🥀"
         ];
 
+        // ── STATE ───────────────────────────────────────────────────
         let targetWord = '';
         let currentRow = 0;
         let currentCol = 0;
@@ -422,9 +500,36 @@
         let gameOver = false;
         let gridTiles = [];
         let keyMap = {};
+        
+        // ── LOCAL STORAGE KEYS ────────────────────────────────────────
+        const STORAGE_KEY_STATS = 'LOVE_WORDLE_STATS';
+        const STORAGE_KEY_STATE = 'LOVE_WORDLE_STATE';
 
+        function getStats() {
+            const defaults = { streak: 0, maxStreak: 0, lastWon: null, lastPlayed: null };
+            const stored = localStorage.getItem(STORAGE_KEY_STATS);
+            return stored ? JSON.parse(stored) : defaults;
+        }
+
+        function saveStats(stats) {
+            localStorage.setItem(STORAGE_KEY_STATS, JSON.stringify(stats));
+        }
+
+        function getTodayString() {
+            const d = new Date();
+            return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+        }
+
+        function getDaysSinceEpoch() {
+            return Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+        }
+
+        // ── INIT ────────────────────────────────────────────────────
         function init() {
-            targetWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+            const today = getTodayString();
+            const days = getDaysSinceEpoch();
+            targetWord = WORDS[days % WORDS.length];
+            
             currentRow = 0;
             currentCol = 0;
             currentGuess = [];
@@ -453,14 +558,94 @@
             }
 
             buildKeyboard();
+            updateStreakDisplay();
+            
+            // Load Saved State or Check Lock
+            const stats = getStats();
+            const savedState = localStorage.getItem(STORAGE_KEY_STATE);
+            
+            if (stats.lastPlayed === today) {
+                if (savedState) {
+                    const state = JSON.parse(savedState);
+                    restoreState(state);
+                    if (state.status !== 'playing') {
+                        gameOver = true;
+                        showModal(state.status === 'win');
+                    }
+                } else {
+                    // Fallback: If played but no state, assume finished (edge case)
+                    gameOver = true;
+                    showModal(true);
+                }
+            } else if (savedState) {
+                // If the state is from a previous day, clear it
+                const state = JSON.parse(savedState);
+                if (state.date !== today) {
+                    localStorage.removeItem(STORAGE_KEY_STATE);
+                }
+            }
+
             hideModal();
+            lucide.createIcons();
+            startCountdown();
+        }
+
+        function updateStreakDisplay() {
+            const stats = getStats();
+            document.getElementById('streakValue').textContent = stats.streak;
+        }
+
+        function restoreState(state) {
+            state.guesses.forEach((guess, r) => {
+                const result = getResult(guess, targetWord);
+                currentRow = r;
+                guess.split('').forEach((char, c) => {
+                    const tile = gridTiles[r][c];
+                    const front = tile.querySelector('.tile-front');
+                    const back = tile.querySelector('.tile-back');
+                    front.textContent = char;
+                    back.textContent = char;
+                    back.className = `tile-back ${result[c]}`;
+                    tile.classList.add('flipped');
+                    
+                    // Update keyboard
+                    const status = result[c];
+                    const keyBtn = keyMap[char];
+                    if (keyBtn) {
+                        if (status === 'correct') keyBtn.className = 'key correct';
+                        else if (status === 'present' && !keyBtn.classList.contains('correct')) keyBtn.className = 'key present';
+                        else if (status === 'absent' && !keyBtn.classList.contains('correct') && !keyBtn.classList.contains('present')) keyBtn.className = 'key absent';
+                    }
+                });
+            });
+            currentRow = state.status === 'playing' ? state.guesses.length : state.guesses.length - 1;
+        }
+
+        function saveGameState(status = 'playing') {
+            const today = getTodayString();
+            const guesses = [];
+            for (let r = 0; r <= currentRow; r++) {
+                const rowChars = [];
+                for (let c = 0; c < 5; c++) {
+                    const text = gridTiles[r][c].querySelector('.tile-front').textContent;
+                    if (text) rowChars.push(text);
+                }
+                if (rowChars.length === 5) guesses.push(rowChars.join(''));
+            }
+            
+            const state = {
+                date: today,
+                guesses: guesses,
+                status: status
+            };
+            localStorage.setItem(STORAGE_KEY_STATE, JSON.stringify(state));
         }
 
         function buildKeyboard() {
             const kbRows = [
                 ['q','w','e','r','t','y','u','i','o','p'],
                 ['a','s','d','f','g','h','j','k','l'],
-                ['Enter','z','x','c','v','b','n','m','⌫']
+                ['Enter','z','x','c','v','b','n','m','backspace']
             ];
             const kb = document.getElementById('keyboard');
             kb.innerHTML = '';
@@ -470,7 +655,11 @@
                 row.forEach(key => {
                     const btn = document.createElement('button');
                     btn.className = 'key' + (key.length > 1 ? ' wide' : '');
-                    btn.textContent = key;
+                    if (key === 'backspace') {
+                        btn.innerHTML = '<i data-lucide="delete"></i>';
+                    } else {
+                        btn.textContent = key;
+                    }
                     btn.addEventListener('click', () => handleInput(key));
                     rowDiv.appendChild(btn);
                     if (key.length === 1) keyMap[key] = btn;
@@ -481,7 +670,8 @@
 
         function handleInput(key) {
             if (gameOver) return;
-            if (key === '⌫' || key === 'Backspace') {
+            const keyLower = key.toLowerCase();
+            if (keyLower === 'backspace' || keyLower === 'delete') {
                 if (currentCol > 0) {
                     currentCol--;
                     currentGuess.pop();
@@ -489,17 +679,16 @@
                     tile.textContent = '';
                     tile.classList.remove('filled');
                 }
-            } else if (key === 'Enter') {
+            } else if (keyLower === 'enter') {
                 if (currentCol === 5) {
                     submitGuess();
                 } else {
-                    showToast('Too short! 💌');
+                    showToast('Too short!', 'alert-circle');
                 }
-            } else if (/^[a-z]$/i.test(key) && currentCol < 5) {
-                const char = key.toLowerCase();
-                currentGuess.push(char);
+            } else if (/^[a-z]$/.test(keyLower) && currentCol < 5) {
+                currentGuess.push(keyLower);
                 const tile = gridTiles[currentRow][currentCol].querySelector('.tile-front');
-                tile.textContent = char;
+                tile.textContent = keyLower;
                 tile.classList.add('filled');
                 currentCol++;
             }
@@ -520,13 +709,9 @@
                     // Update keyboard
                     const keyBtn = keyMap[guess[i]];
                     if (keyBtn) {
-                        if (status === 'correct') {
-                            keyBtn.className = 'key correct';
-                        } else if (status === 'present' && !keyBtn.classList.contains('correct')) {
-                            keyBtn.className = 'key present';
-                        } else if (status === 'absent' && !keyBtn.classList.contains('correct') && !keyBtn.classList.contains('present')) {
-                            keyBtn.className = 'key absent';
-                        }
+                        if (status === 'correct') keyBtn.className = 'key correct';
+                        else if (status === 'present' && !keyBtn.classList.contains('correct')) keyBtn.className = 'key present';
+                        else if (status === 'absent' && !keyBtn.classList.contains('correct') && !keyBtn.classList.contains('present')) keyBtn.className = 'key absent';
                     }
 
                     if (i === 4) {
@@ -541,7 +726,6 @@
             const targetChars = target.split('');
             const guessChars = guess.split('');
 
-            // First pass: Correct position
             guessChars.forEach((char, i) => {
                 if (char === targetChars[i]) {
                     res[i] = 'correct';
@@ -550,7 +734,6 @@
                 }
             });
 
-            // Second pass: Present but wrong position
             guessChars.forEach((char, i) => {
                 if (char && targetChars.includes(char)) {
                     res[i] = 'present';
@@ -562,56 +745,152 @@
         }
 
         function checkGameState(isWin) {
+            const today = getTodayString();
+            const stats = getStats();
+            
             if (isWin) {
                 gameOver = true;
+                // Update Stats
+                stats.streak++;
+                if (stats.streak > stats.maxStreak) stats.maxStreak = stats.streak;
+                stats.lastWon = today;
+                stats.lastPlayed = today;
+                saveStats(stats);
+                saveGameState('win');
+                updateStreakDisplay();
                 showModal(true);
             } else if (currentRow === 5) {
                 gameOver = true;
+                stats.streak = 0; // Reset streak on loss
+                stats.lastPlayed = today;
+                saveStats(stats);
+                saveGameState('loss');
+                updateStreakDisplay();
                 showModal(false);
             } else {
                 currentRow++;
                 currentCol = 0;
                 currentGuess = [];
+                saveGameState('playing');
             }
         }
 
-        function showToast(msg) {
+        function showToast(msg, icon = 'heart') {
             const toast = document.getElementById('toast');
-            toast.textContent = msg;
+            toast.innerHTML = `<i data-lucide="${icon}"></i> <span>${msg}</span>`;
+            lucide.createIcons();
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 2000);
         }
 
         function showModal(win) {
             const modal = document.getElementById('modal');
-            const emoji = document.getElementById('modalEmoji');
+            const iconDiv = document.getElementById('modalIcon');
             const title = document.getElementById('modalTitle');
             const msg = document.getElementById('modalMessage');
+            const stats = getStats();
 
-            emoji.textContent = win ? '💖' : '💔';
+            iconDiv.innerHTML = win ? '<i data-lucide="party-popper"></i>' : '<i data-lucide="frown"></i>';
             title.textContent = win ? 'You Found It!' : 'Oh No, Love...';
             msg.textContent = win ? 
                 WIN_MESSAGES[Math.floor(Math.random() * WIN_MESSAGES.length)] : 
-                `${LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)]} The word was ${targetWord.toUpperCase()}.`;
+                `${LOSE_MESSAGES[Math.floor(Math.random() * LOSE_MESSAGES.length)]} Today's word was ${targetWord.toUpperCase()}.`;
+
+            document.getElementById('statStreak').textContent = stats.streak;
+            document.getElementById('statMax').textContent = stats.maxStreak;
 
             modal.classList.add('show');
+            lucide.createIcons();
         }
 
         function hideModal() {
             document.getElementById('modal').classList.remove('show');
         }
 
-        document.getElementById('playAgainBtn').onclick = init;
+        function startCountdown() {
+            const timeSpan = document.getElementById('timeRemaining');
+            function update() {
+                const now = new Date();
+                const nextDay = new Date();
+                nextDay.setHours(24, 0, 0, 0);
+                const diff = nextDay - now;
+                
+                const h = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
+                const m = Math.floor((diff / (1000 * 60)) % 60).toString().padStart(2, '0');
+                const s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+                
+                timeSpan.textContent = `${h}:${m}:${s}`;
+            }
+            setInterval(update, 1000);
+            update();
+        }
 
         document.addEventListener('keydown', (e) => handleInput(e.key));
 
-        // Ambient Hearts Effect
+        // ── YOUTUBE MUSIC INTEGRATION ─────────────────────────────────
+        let player;
+        let playerReady = false;
+
+        // Load YT API
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                height: '0',
+                width: '0',
+                videoId: 'vAZYVeZ11FE',
+                playerVars: {
+                    'autoplay': 0,
+                    'controls': 0,
+                    'disablekb': 1,
+                    'fs': 0,
+                    'modestbranding': 1,
+                    'rel': 0,
+                    'loop': 1,
+                    'playlist': 'vAZYVeZ11FE'
+                },
+                events: {
+                    'onReady': onPlayerReady
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            playerReady = true;
+        }
+
+        const musicBtn = document.getElementById('musicBtn');
+        let musicPlaying = false;
+
+        musicBtn.onclick = () => {
+            if (!playerReady) return;
+            
+            if (musicPlaying) {
+                player.pauseVideo();
+                musicPlaying = false;
+                document.getElementById('musicIcon').setAttribute('data-lucide', 'music');
+                document.getElementById('musicLabel').textContent = 'Music';
+            } else {
+                player.playVideo();
+                musicPlaying = true;
+                document.getElementById('musicIcon').setAttribute('data-lucide', 'pause');
+                document.getElementById('musicLabel').textContent = 'Pause';
+            }
+            musicBtn.classList.toggle('playing', musicPlaying);
+            lucide.createIcons();
+        };
+
+        // ── AMBIENT HEARTS ───────────────────────────────────────────
         function createAmbientHearts() {
             const container = document.getElementById('ambientHearts');
-            const emojis = ['💖', '💕', '💗', '💓', '💕', '✨'];
+            const icons = ['heart', 'sparkle', 'star'];
             for (let i = 0; i < 15; i++) {
                 const span = document.createElement('span');
-                span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                const icon = icons[Math.floor(Math.random() * icons.length)];
+                span.innerHTML = `<i data-lucide="${icon}"></i>`;
                 span.style.setProperty('--x', Math.random() * 100 + '%');
                 span.style.setProperty('--delay', Math.random() * 10 + 's');
                 span.style.setProperty('--dur', Math.random() * 5 + 10 + 's');
@@ -619,64 +898,8 @@
                 span.style.setProperty('--blur', Math.random() * 2 + 'px');
                 container.appendChild(span);
             }
+            lucide.createIcons();
         }
-
-        // Music Logic
-        let audioCtx = null;
-        let musicPlaying = false;
-
-        function createMusic(ctx) {
-            const masterGain = ctx.createGain();
-            masterGain.gain.setValueAtTime(0, ctx.currentTime);
-            masterGain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 2);
-            masterGain.connect(ctx.destination);
-
-            const chords = [
-                [261.63, 329.63, 392.00, 493.88], // Cmaj7
-                [220.00, 261.63, 329.63, 440.00], // Am7
-                [174.61, 220.00, 261.63, 349.23], // Fmaj7
-                [196.00, 246.94, 293.66, 392.00]  // G
-            ];
-
-            let bar = 0;
-            function playStep() {
-                const chord = chords[bar % chords.length];
-                const now = ctx.currentTime;
-                
-                chord.forEach((freq, i) => {
-                    const osc = ctx.createOscillator();
-                    const env = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, now + i * 0.5);
-                    env.gain.setValueAtTime(0, now + i * 0.5);
-                    env.gain.linearRampToValueAtTime(0.1, now + i * 0.5 + 0.1);
-                    env.gain.exponentialRampToValueAtTime(0.001, now + i * 0.5 + 2);
-                    osc.connect(env);
-                    env.connect(masterGain);
-                    osc.start(now + i * 0.5);
-                    osc.stop(now + i * 0.5 + 2.5);
-                });
-                bar++;
-                setTimeout(playStep, 4000);
-            }
-            playStep();
-        }
-
-        document.getElementById('musicBtn').onclick = () => {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                createMusic(audioCtx);
-                musicPlaying = true;
-            } else if (musicPlaying) {
-                audioCtx.suspend();
-                musicPlaying = false;
-            } else {
-                audioCtx.resume();
-                musicPlaying = true;
-            }
-            document.getElementById('musicBtn').classList.toggle('playing', musicPlaying);
-            document.getElementById('musicLabel').textContent = musicPlaying ? 'Pause' : 'Music';
-        };
 
         init();
         createAmbientHearts();
